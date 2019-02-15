@@ -9,32 +9,65 @@
       <el-button slot="append" icon="el-icon-search"></el-button>
     </el-input>
     <el-button type="success">添加用户</el-button>
-    <el-table :data="list" style="width: 100%">
-      <el-table-column prop="id" label="#" width="180"></el-table-column>
-      <el-table-column prop="username" label="用户名" width="180"></el-table-column>
-      <el-table-column prop="mobile" label="邮箱"></el-table-column>
-      <el-table-column prop="email" label="电话"></el-table-column>
+    <el-table :data="list" style="width: 100%" class="dataTable">
+      <el-table-column prop="id" label="#" width="80"></el-table-column>
+      <el-table-column prop="username" label="用户名" width="80"></el-table-column>
+      <el-table-column prop="mobile" label="电话" width="120"></el-table-column>
+      <el-table-column prop="email" label="邮箱" width="140"></el-table-column>
+      <!-- 日期格式化 -->
+      <el-table-column label="创建日期" width="140">
+        <template slot-scope="scope">{{ scope.row.create_time | fmtdate }}</template>
+      </el-table-column>
+      <!-- 状态处理 -->
+      <el-table-column label="用户状态" width="80">
+        <template slot-scope="scope">
+          <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+        </template>
+      </el-table-column>
+      <!-- 操作 -->
+      <el-table-column label="操作" width="140">
+          <el-button type="primary" icon="el-icon-edit" circle size='mini' plain></el-button>
+          <el-button type="danger" icon="el-icon-check" circle size='mini' plain></el-button>
+          <el-button type="success" icon="el-icon-edit" circle size='mini' plain></el-button>
+      </el-table-column>
     </el-table>
+    <div class="block pagenation">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="pagenum"
+        :page-sizes="[2, 4, 6, 8]"
+        :page-size="pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="400"
+      ></el-pagination>
+    </div>
   </el-card>
 </template>
 
 <script>
 export default {
-  created () {
-    this.getData()
+  created() {
+    this.getData();
   },
-  data () {
+  data() {
     return {
-      query: '',
+      query: "",
       pagenum: 1,
       pagesize: 2,
       list: []
-    }
+    };
   },
   methods: {
-    getData () {
-      const AUTH_TOKEN = localStorage.getItem('token')
-      this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+    },
+    getData() {
+      const AUTH_TOKEN = localStorage.getItem("token");
+      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       this.$http
         .get(
           `users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${
@@ -42,33 +75,35 @@ export default {
           }`
         )
         .then(res => {
-          console.log(res)
+          console.log(res);
           const {
-              data:{
-                  data:{
-                      users
-                  },
-                  meta:{
-                      status
-                  }
-              }
-          }=res
-          console.log(users,status)
-          if (status===200) {
-              this.list=users
+            data: {
+              data: { users },
+              meta: { status }
+            }
+          } = res;
+          console.log(users, status);
+          if (status === 200) {
+            this.list = users;
           }
-        })
+        });
     }
   }
-}
+};
 </script>
 
 <style>
+.dataTable {
+  margin-top: 20px;
+}
 .card {
   height: 100%;
 }
 .inputSear {
   margin-top: 20px;
   width: 500px;
+}
+.pagenation {
+  margin-top: 20px;
 }
 </style>
