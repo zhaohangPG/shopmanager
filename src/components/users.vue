@@ -5,10 +5,10 @@
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-input placeholder="请输入内容" v-model="query" class="inputSear">
+    <el-input placeholder="请输入内容" v-model="query" class="inputSear" clearable>
       <el-button slot="append" icon="el-icon-search"></el-button>
     </el-input>
-    <el-button type="success">添加用户</el-button>
+    <el-button type="success" @click="addFormVisble = true">添加用户</el-button>
     <el-table :data="list" style="width: 100%" class="dataTable">
       <el-table-column prop="id" label="#" width="80"></el-table-column>
       <el-table-column prop="username" label="用户名" width="80"></el-table-column>
@@ -26,9 +26,9 @@
       </el-table-column>
       <!-- 操作 -->
       <el-table-column label="操作" width="140">
-          <el-button type="primary" icon="el-icon-edit" circle size='mini' plain></el-button>
-          <el-button type="danger" icon="el-icon-check" circle size='mini' plain></el-button>
-          <el-button type="success" icon="el-icon-edit" circle size='mini' plain></el-button>
+        <el-button type="primary" icon="el-icon-edit" circle size="mini" plain></el-button>
+        <el-button type="danger" icon="el-icon-check" circle size="mini" plain></el-button>
+        <el-button type="success" icon="el-icon-edit" circle size="mini" plain></el-button>
       </el-table-column>
     </el-table>
     <div class="block pagenation">
@@ -39,9 +39,35 @@
         :page-sizes="[2, 4, 6, 8]"
         :page-size="pagesize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="400"
+        :total="total"
       ></el-pagination>
     </div>
+    <el-dialog title="添加用户" :visible.sync="addFormVisble" label-position='left'>
+      <el-form :model="addForm">
+        <el-form-item label="用户名" label-width="80px">
+          <el-input v-model="addForm.name" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-form :model="addForm">
+        <el-form-item label="密码" label-width="80px">
+          <el-input v-model="addForm.name" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-form :model="addForm">
+        <el-form-item label="邮箱" label-width="80px">
+          <el-input v-model="addForm.name" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-form :model="addForm">
+        <el-form-item label="电话" label-width="80px">
+          <el-input v-model="addForm.name" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addFormVisble = false">取 消</el-button>
+        <el-button type="primary" @click="addFormVisble = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -55,15 +81,25 @@ export default {
       query: "",
       pagenum: 1,
       pagesize: 2,
-      list: []
+      list: [],
+      tolal: -1,
+      addFormVisble: false,
+      addForm:{
+          email:'',
+      }
     };
   },
   methods: {
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
+      this.pagesize = val;
+      this.pagenum = 1;
+      this.getData();
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.pagenum = val;
+      this.getData();
     },
     getData() {
       const AUTH_TOKEN = localStorage.getItem("token");
@@ -78,10 +114,12 @@ export default {
           console.log(res);
           const {
             data: {
-              data: { users },
+              data: { users, total },
               meta: { status }
             }
           } = res;
+          console.log(total);
+          this.total = total;
           console.log(users, status);
           if (status === 200) {
             this.list = users;
