@@ -25,19 +25,26 @@ export default {
   methods: {
     login () {
       console.log('登录按钮')
-      this.$http
-        .post('login', this.formdata)
-        .then(res => {
-          const { msg, status } = res.data.meta
-          console.log(msg, status)
-          if (status === 200) {
-            this.$router.push({
-              name: 'home'
-            })
-          } else {
-            this.$message.error(msg)
+      this.$http.post('login', this.formdata).then(res => {
+        const {
+          data: {
+            meta: {
+              msg,
+              status
+            }
           }
-        })
+        } = res
+        console.log(msg, status)
+        if (status === 200) {
+          const token = res.data.data.token
+          console.log(token)
+          this.$router.push({
+            name: 'home'
+          })
+        } else {
+          this.$message.error(msg)
+        }
+      })
     }
   }
 }
