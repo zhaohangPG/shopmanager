@@ -8,22 +8,26 @@
                     <h2 class="title">电商后台管理页面</h2>
                     </div></el-col>
                 <el-col :span="2"><div class="grid-content bg-purple tac pt20">
-                     <el-button type="danger">退出</el-button>
+                     <el-button type="danger" @click="logout()">退出</el-button>
                     <!-- <a href="" class="loginout" @click.prevent="logout()">退出</a> -->
-                    </div></el-col>
+                    </div>
+                </el-col>
             </el-row>
         </el-header>
         <el-container >
             <el-aside width="200px" class="aside">
                 <app-menu></app-menu>
             </el-aside>
-            <el-main>Main</el-main>
+            <el-main>
+                <router-view></router-view>
+            </el-main>
         </el-container>
     </el-container>
 </template>
 
 <script>
 import appMenu from './menu'
+
 export default {
   data () {
     return {
