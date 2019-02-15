@@ -34,9 +34,22 @@ export default {
 
     }
   },
+  beforeMount () {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      this.$router.push({
+        name: 'login'
+      })
+      this.$message.warning('请先登录')
+    }
+  },
   methods: {
     logout () {
-
+      localStorage.clear()
+      this.$router.push({
+        name: 'login'
+      })
+      this.$message.warning('已退出登录')
     }
   },
   components: {
