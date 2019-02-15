@@ -38,6 +38,7 @@ export default {
         if (status === 200) {
           const token = res.data.data.token
           console.log(token)
+          localStorage.setItem('token', token)
           this.$router.push({
             name: 'home'
           })
