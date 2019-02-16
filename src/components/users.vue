@@ -5,8 +5,8 @@
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-input placeholder="请输入内容" v-model="query" class="inputSear" clearable>
-      <el-button slot="append" icon="el-icon-search"></el-button>
+    <el-input placeholder="请输入内容" v-model="query" class="inputSear" clearable @clear='searchClr()'>
+      <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
     </el-input>
     <el-button type="success" @click="addFormVisble = true">添加用户</el-button>
     <el-table :data="list" style="width: 100%" class="dataTable">
@@ -82,7 +82,7 @@ export default {
       pagenum: 1,
       pagesize: 2,
       list: [],
-      tolal: -1,
+      total: 0,
       addFormVisble: false,
       addForm:{
           email:'',
@@ -90,6 +90,14 @@ export default {
     };
   },
   methods: {
+    search(){
+      console.log('搜索按钮点击')
+      this.pagenum=1;
+      this.getData();
+    },
+    searchClr(){
+      this.getData();
+    },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
       this.pagesize = val;
