@@ -5,7 +5,7 @@
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-input placeholder="请输入内容" v-model="query" class="inputSear" clearable @clear='searchClr()'>
+    <el-input placeholder="请输入内容" v-model="query" class="inputSear" clearable @clear="searchClr()">
       <el-button slot="append" icon="el-icon-search" @click="search()"></el-button>
     </el-input>
     <el-button type="success" @click="addFormVisble = true">添加用户</el-button>
@@ -21,14 +21,35 @@
       <!-- 状态处理 -->
       <el-table-column label="用户状态" width="80">
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <el-switch
+            v-model="scope.row.mg_state"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="statusChange(scope.row)"
+          ></el-switch>
         </template>
       </el-table-column>
       <!-- 操作 -->
       <el-table-column label="操作" width="140">
-        <el-button type="primary" icon="el-icon-edit" circle size="mini" plain></el-button>
-        <el-button type="danger" icon="el-icon-check" circle size="mini" plain></el-button>
-        <el-button type="success" icon="el-icon-edit" circle size="mini" plain></el-button>
+        <template slot-scope="scope">
+          <el-button
+            type="primary"
+            icon="el-icon-edit"
+            circle
+            size="mini"
+            plain
+            @click="editFormShow(scope.row)"
+          ></el-button>
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            circle
+            size="mini"
+            plain
+            @click="delShow(scope.row)"
+          ></el-button>
+          <el-button type="success" icon="el-icon-check" circle size="mini" plain></el-button>
+        </template>
       </el-table-column>
     </el-table>
     <div class="block pagenation">
@@ -42,31 +63,49 @@
         :total="total"
       ></el-pagination>
     </div>
-    <el-dialog title="添加用户" :visible.sync="addFormVisble" label-position='left'>
+    <!-- 添加弹出层 -->
+    <el-dialog title="添加用户" :visible.sync="addFormVisble" label-position="left">
       <el-form :model="addForm">
         <el-form-item label="用户名" label-width="80px">
-          <el-input v-model="addForm.name" autocomplete="off"></el-input>
+          <el-input v-model="addForm.username" autocomplete="off"></el-input>
         </el-form-item>
-      </el-form>
-      <el-form :model="addForm">
         <el-form-item label="密码" label-width="80px">
-          <el-input v-model="addForm.name" autocomplete="off"></el-input>
+          <el-input v-model="addForm.password" autocomplete="off"></el-input>
         </el-form-item>
-      </el-form>
-      <el-form :model="addForm">
         <el-form-item label="邮箱" label-width="80px">
-          <el-input v-model="addForm.name" autocomplete="off"></el-input>
+          <el-input v-model="addForm.email" autocomplete="off"></el-input>
         </el-form-item>
-      </el-form>
-      <el-form :model="addForm">
         <el-form-item label="电话" label-width="80px">
-          <el-input v-model="addForm.name" autocomplete="off"></el-input>
+          <el-input v-model="addForm.mobile" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addFormVisble = false">取 消</el-button>
-        <el-button type="primary" @click="addFormVisble = false">确 定</el-button>
+        <el-button type="primary" @click="addFormCommit()">确 定</el-button>
       </div>
+    </el-dialog>
+    <!-- 编辑弹出层 -->
+    <el-dialog title="编辑用户" :visible.sync="editFormVisble" label-position="left">
+      <el-form :model="addForm">
+        <el-form-item label="邮箱" label-width="80px">
+          <el-input v-model="editForm.email" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" label-width="80px">
+          <el-input v-model="editForm.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editFormVisble = false">取 消</el-button>
+        <el-button type="primary" @click="editFormCommit()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 删除弹出层 -->
+    <el-dialog title="提示" :visible.sync="delVisble" width="30%" center>
+      <span>确认删除用户{{delName}}吗？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="delVisble = false">取 消</el-button>
+        <el-button type="primary" @click="delSubmit()">确 定</el-button>
+      </span>
     </el-dialog>
   </el-card>
 </template>
@@ -84,18 +123,29 @@ export default {
       list: [],
       total: 0,
       addFormVisble: false,
-      addForm:{
-          email:'',
-      }
+      editFormVisble: false,
+      delVisble: false,
+      addForm: {
+        email: "",
+        username: "",
+        password: "",
+        mobile: ""
+      },
+      editForm: {
+        email: "",
+        mobile: ""
+      },
+      delID: 0,
+      delName: ""
     };
   },
   methods: {
-    search(){
-      console.log('搜索按钮点击')
-      this.pagenum=1;
+    search() {
+      console.log("搜索按钮点击");
+      this.pagenum = 1;
       this.getData();
     },
-    searchClr(){
+    searchClr() {
       this.getData();
     },
     handleSizeChange(val) {
@@ -133,6 +183,98 @@ export default {
             this.list = users;
           }
         });
+    },
+    addFormCommit() {
+      console.log(this.addForm);
+      const AUTH_TOKEN = localStorage.getItem("token");
+      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      this.$http.post("users", this.addForm).then(res => {
+        console.log(res);
+        const {
+          data: {
+            meta: { msg, status }
+          }
+        } = res;
+        if (status === 201) {
+          this.$message.success(msg);
+          this.addFormVisble = false;
+          this.getData();
+        } else {
+          this.$message.warning(msg);
+        }
+      });
+    },
+    statusChange(user) {
+      console.log(user);
+      const AUTH_TOKEN = localStorage.getItem("token");
+      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      this.$http.put(`users/${user.id}/state/${user.mg_state}`).then(res => {
+        console.log(res);
+        const {
+          data: {
+            meta: { msg, status }
+          }
+        } = res;
+        if (status === 200) {
+          this.$message.success(msg);
+          this.getData();
+        } else {
+          this.$message.warning(msg);
+        }
+      });
+    },
+    editFormShow(user) {
+      this.editFormVisble = true;
+      console.log(user);
+      this.editForm = {
+        id: user.id,
+        email: user.email,
+        mobile: user.mobile
+      };
+    },
+    editFormCommit() {
+      const AUTH_TOKEN = localStorage.getItem("token");
+      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      this.$http.put(`users/${this.editForm.id}`, this.editForm).then(res => {
+        console.log(res);
+        const {
+          data: {
+            meta: { msg, status }
+          }
+        } = res;
+        if (status === 200) {
+          this.$message.success(msg);
+          this.editFormVisble = false;
+          this.getData();
+        } else {
+          this.$message.warning(msg);
+        }
+      });
+    },
+    delShow(user) {
+      console.log(user.id);
+      this.delID = user.id;
+      this.delName = user.username;
+      this.delVisble = true;
+    },
+    delSubmit() {
+      console.log("删除被提交,id为" + this.delID);
+      const AUTH_TOKEN = localStorage.getItem("token");
+      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      this.$http.delete(`users/${this.delID}`).then(res => {
+        const {
+          data: {
+            meta: { msg, status }
+          }
+        } = res;
+        if (status === 200) {
+          this.delVisble = false;
+          this.$message.success(msg);
+          this.getData();
+        } else {
+          this.$message.warning(msg);
+        }
+      });
     }
   }
 };
