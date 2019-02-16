@@ -72,18 +72,18 @@
     </div>
     <!-- 添加弹出层 -->
     <el-dialog title="添加用户" :visible.sync="addFormVisble" label-position="left">
-      <el-form :model="addForm">
-        <el-form-item label="用户名" label-width="80px">
-          <el-input v-model="addForm.username" autocomplete="off"></el-input>
+      <el-form :model="addForm" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="addForm.username"></el-input>
         </el-form-item>
-        <el-form-item label="密码" label-width="80px">
-          <el-input v-model="addForm.password" autocomplete="off"></el-input>
+        <el-form-item label="密码">
+          <el-input v-model="addForm.password"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" label-width="80px">
-          <el-input v-model="addForm.email" autocomplete="off"></el-input>
+        <el-form-item label="邮箱">
+          <el-input v-model="addForm.email"></el-input>
         </el-form-item>
-        <el-form-item label="电话" label-width="80px">
-          <el-input v-model="addForm.mobile" autocomplete="off"></el-input>
+        <el-form-item label="电话">
+          <el-input v-model="addForm.mobile"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -93,12 +93,15 @@
     </el-dialog>
     <!-- 编辑弹出层 -->
     <el-dialog title="编辑用户" :visible.sync="editFormVisble" label-position="left">
-      <el-form :model="addForm">
+      <el-form :model="addForm" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="editForm.username" disabled></el-input>
+        </el-form-item>
         <el-form-item label="邮箱" label-width="80px">
-          <el-input v-model="editForm.email" autocomplete="off"></el-input>
+          <el-input v-model="editForm.email"></el-input>
         </el-form-item>
         <el-form-item label="电话" label-width="80px">
-          <el-input v-model="editForm.mobile" autocomplete="off"></el-input>
+          <el-input v-model="editForm.mobile"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -115,7 +118,28 @@
       </span>
     </el-dialog>
     <!-- 角色授权弹出层 -->
-    <el-dialog title="提示" :visible.sync="roleVisble" width="30%" center>
+    <el-dialog title="角色授权管理" :visible.sync="roleVisble">
+      <el-form :model="editForm">
+        <el-form-item label="用户名">{{userRole}}</el-form-item>
+        <!-- {{selectVal}} -->
+        <el-form-item label="授权角色">
+          <el-select v-model="selectVal" placeholder="请选择活动区域">
+            <el-option label="请选择角色" :value="-1" disabled></el-option>
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="roleVisble = false">取 消</el-button>
+        <el-button type="primary" @click="roleSubmit()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- <el-dialog title="提示" :visible.sync="roleVisble" width="30%" center>
       <span>请确认授权角色</span>
       <el-row>
         <el-col>
@@ -136,7 +160,7 @@
         <el-button @click="roleVisble = false">取 消</el-button>
         <el-button type="primary" @click="roleSubmit()">确 定</el-button>
       </span>
-    </el-dialog>
+    </el-dialog>-->
   </el-card>
 </template>
 
@@ -149,7 +173,7 @@ export default {
     return {
       query: "",
       pagenum: 1,
-      pagesize: 2,
+      pagesize: 4,
       list: [],
       total: 0,
       addFormVisble: false,
@@ -162,15 +186,13 @@ export default {
         password: "",
         mobile: ""
       },
-      editForm: {
-        email: "",
-        mobile: ""
-      },
+      editForm: {},
       delID: 0,
       delName: "",
       userRole: "",
       roleList: [],
-      roleSel:'请选择角色'
+      selectVal: -1,
+      userId: -1
     };
   },
   methods: {
@@ -194,8 +216,6 @@ export default {
       this.getData();
     },
     getData() {
-      const AUTH_TOKEN = localStorage.getItem("token");
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       this.$http
         .get(
           `users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${
@@ -203,16 +223,13 @@ export default {
           }`
         )
         .then(res => {
-          console.log(res);
           const {
             data: {
               data: { users, total },
               meta: { status }
             }
           } = res;
-          console.log(total);
           this.total = total;
-          console.log(users, status);
           if (status === 200) {
             this.list = users;
           }
@@ -220,8 +237,6 @@ export default {
     },
     addFormCommit() {
       console.log(this.addForm);
-      const AUTH_TOKEN = localStorage.getItem("token");
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       this.$http.post("users", this.addForm).then(res => {
         console.log(res);
         const {
@@ -240,8 +255,6 @@ export default {
     },
     statusChange(user) {
       console.log(user);
-      const AUTH_TOKEN = localStorage.getItem("token");
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       this.$http.put(`users/${user.id}/state/${user.mg_state}`).then(res => {
         console.log(res);
         const {
@@ -260,15 +273,9 @@ export default {
     editFormShow(user) {
       this.editFormVisble = true;
       console.log(user);
-      this.editForm = {
-        id: user.id,
-        email: user.email,
-        mobile: user.mobile
-      };
+      this.editForm = user;
     },
     editFormCommit() {
-      const AUTH_TOKEN = localStorage.getItem("token");
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       this.$http.put(`users/${this.editForm.id}`, this.editForm).then(res => {
         console.log(res);
         const {
@@ -292,9 +299,6 @@ export default {
       this.delVisble = true;
     },
     delSubmit() {
-      console.log("删除被提交,id为" + this.delID);
-      const AUTH_TOKEN = localStorage.getItem("token");
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       this.$http.delete(`users/${this.delID}`).then(res => {
         const {
           data: {
@@ -311,10 +315,10 @@ export default {
       });
     },
     showRole(user) {
-      this.userRole = user.role_name;
+      this.userRole = user.username;
+      this.selectVal = user.role_name;
+      this.userId = user.id;
       this.roleVisble = true;
-      const AUTH_TOKEN = localStorage.getItem("token");
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       this.$http.get("roles").then(res => {
         console.log(res);
         const {
@@ -326,11 +330,27 @@ export default {
     },
     roleSubmit() {
       // this.$message.warning(cmd);
-    },
-    roleHandle(cmd) {
-      this.$message.warning(cmd+'已授权完毕');
-      this.roleSel=cmd;
-
+      
+      this.$http
+        .put(`users/${this.userId}/role`, {
+          rid: this.selectVal
+        })
+        .then(res => {
+          console.log(res);
+          const {
+            data: {
+              meta: { msg, status }
+            }
+          } = res;
+          if (status === 200) {
+            this.$message.success(this.userRole + msg);
+            this.roleVisble = false;
+            this.getData();
+          }else {
+            this.$message.warning(msg);
+          }
+        });
+      
     }
   }
 };
