@@ -13,7 +13,7 @@
         <span>权限管理</span>
       </template>
         <el-menu-item index="users"><i class="el-icon-tickets"></i>角色列表</el-menu-item>
-        <el-menu-item index="users"><i class="el-icon-tickets"></i>权限列表</el-menu-item>
+        <el-menu-item index="rights"><i class="el-icon-tickets"></i>权限列表</el-menu-item>
     </el-submenu>
     <el-submenu index="3">
       <template slot="title">

@@ -7,12 +7,14 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import httpServer from './http.js'
 import moment from 'moment'
+import Crumbs from './components/Crumbs.vue'
 
 Vue.use(httpServer);
 
 Vue.config.productionTip = false
 // axios.defaults.baseURL = 'http://localhost:8888/api/private/v1/'
 // Vue.prototype.$http = axios
+Vue.component('cruLink', Crumbs);
 
 Vue.filter('fmtdate', (v) => {
   return moment(v).format('YYYY-MM-DD');
