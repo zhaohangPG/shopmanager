@@ -48,7 +48,14 @@
             plain
             @click="delShow(scope.row)"
           ></el-button>
-          <el-button type="success" icon="el-icon-check" circle size="mini" plain></el-button>
+          <el-button
+            type="success"
+            icon="el-icon-check"
+            circle
+            size="mini"
+            plain
+            @click="showRole(scope.row)"
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -107,6 +114,29 @@
         <el-button type="primary" @click="delSubmit()">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 角色授权弹出层 -->
+    <el-dialog title="提示" :visible.sync="roleVisble" width="30%" center>
+      <span>请确认授权角色</span>
+      <el-row>
+        <el-col>
+          <span>当前用户角色为{{userRole}}</span>
+        </el-col>
+      </el-row>
+      <el-dropdown size="small" split-button type="primary" @command="roleHandle">
+        <span class="el-dropdown-link">{{roleSel}}</span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item
+            :command="item.roleName"
+            v-for="item in roleList"
+            :key="item.id"
+          >{{ item.roleName}}</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="roleVisble = false">取 消</el-button>
+        <el-button type="primary" @click="roleSubmit()">确 定</el-button>
+      </span>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -125,6 +155,7 @@ export default {
       addFormVisble: false,
       editFormVisble: false,
       delVisble: false,
+      roleVisble: false,
       addForm: {
         email: "",
         username: "",
@@ -136,7 +167,10 @@ export default {
         mobile: ""
       },
       delID: 0,
-      delName: ""
+      delName: "",
+      userRole: "",
+      roleList: [],
+      roleSel:'请选择角色'
     };
   },
   methods: {
@@ -275,6 +309,28 @@ export default {
           this.$message.warning(msg);
         }
       });
+    },
+    showRole(user) {
+      this.userRole = user.role_name;
+      this.roleVisble = true;
+      const AUTH_TOKEN = localStorage.getItem("token");
+      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      this.$http.get("roles").then(res => {
+        console.log(res);
+        const {
+          data: { data }
+        } = res;
+        console.log(data);
+        this.roleList = data;
+      });
+    },
+    roleSubmit() {
+      // this.$message.warning(cmd);
+    },
+    roleHandle(cmd) {
+      this.$message.warning(cmd+'已授权完毕');
+      this.roleSel=cmd;
+
     }
   }
 };
