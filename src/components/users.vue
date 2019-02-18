@@ -139,28 +139,6 @@
         <el-button type="primary" @click="roleSubmit()">确 定</el-button>
       </div>
     </el-dialog>
-    <!-- <el-dialog title="提示" :visible.sync="roleVisble" width="30%" center>
-      <span>请确认授权角色</span>
-      <el-row>
-        <el-col>
-          <span>当前用户角色为{{userRole}}</span>
-        </el-col>
-      </el-row>
-      <el-dropdown size="small" split-button type="primary" @command="roleHandle">
-        <span class="el-dropdown-link">{{roleSel}}</span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item
-            :command="item.roleName"
-            v-for="item in roleList"
-            :key="item.id"
-          >{{ item.roleName}}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="roleVisble = false">取 消</el-button>
-        <el-button type="primary" @click="roleSubmit()">确 定</el-button>
-      </span>
-    </el-dialog>-->
   </el-card>
 </template>
 

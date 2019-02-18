@@ -8,7 +8,12 @@
 
 <script>
 export default {
-    props:['level1','level2']
+    props:['level1','level2'],
+    data() {
+      return {
+        
+      }
+    },
 };
 </script>
 

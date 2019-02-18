@@ -1,25 +1,58 @@
 <template>
   <el-card class="boxcard">
     <cru-link level1="权限管理" level2="角色列表"></cru-link>
-    <el-collapse v-model="activeName" accordion class="spread" @change="showRights">
-      <el-collapse-item
-        v-for="item in roleList"
-        :key="item.id"
-        :title="item.roleName"
-        :name="item.id"
-        class="sheet"
-      >
-        <div v-for="rightL1 in item.children" :key="rightL1.id" class="fl">
-          <el-tag closable type="success" @close="deleRights(rightL1.id)">{{rightL1.authName}}</el-tag>
-          <div v-for="rightL2 in rightL1.children" :key="rightL2.id" class="fl">
-            <el-tag closable type="warning" @close="deleRights(rightL2.id)">{{rightL2.authName}}</el-tag>
-            <div v-for="rightL3 in rightL2.children" :key="rightL3.id" class="fl">
-              <el-tag closable @close="deleRights(rightL3.id)">{{rightL3.authName}}</el-tag>
-            </div>
-          </div>
-        </div>
-      </el-collapse-item>
-    </el-collapse>
+    <el-table :data="roleList" style="width: 100%">
+      <el-table-column type="expand">
+        <template slot-scope="scope">
+          <el-row v-for="lev1 in scope.row.children" :key="lev1.id" class="lev1">
+              <el-col :span="4">
+                <el-tag closable @close='deleRights(lev1.id,scope.row.id)'>{{lev1.authName}}</el-tag><i class="el-icon-arrow-right"></i>
+              </el-col>
+              <el-col :span="20">
+                <el-row v-for="lev2 in lev1.children" :key='lev2.id' class="lev2">
+                  <el-col :span="4">
+                    <el-tag closable @close='deleRights(lev2.id,scope.row.id)' type="success">{{lev2.authName}}</el-tag><i class="el-icon-arrow-right"></i>
+                  </el-col>
+                  <el-col :span="20">
+                    <el-tag closable @close='deleRights(lev3.id,scope.row.id)' type="warning" v-for="lev3 in lev2.children" :key='lev3.id'>{{lev3.authName}}</el-tag>
+                  </el-col>
+                </el-row>
+              </el-col>
+          </el-row>
+        </template>
+      </el-table-column>
+      <el-table-column label="角色 ID" prop="id" width="80"></el-table-column>
+      <el-table-column label="角色名" prop="roleName" width="260"></el-table-column>
+      <el-table-column label="角色描述" prop="roleDesc" width="260"></el-table-column>
+      <el-table-column label="操作" width="260">
+        <template slot-scope="scope">
+          <el-button
+            type="primary"
+            icon="el-icon-edit"
+            circle
+            size="mini"
+            plain
+            @click="editRoleShow(scope.row)"
+          ></el-button>
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            circle
+            size="mini"
+            plain
+            @click="delRoleShow(scope.row)"
+          ></el-button>
+          <el-button
+            type="success"
+            icon="el-icon-check"
+            circle
+            size="mini"
+            plain
+            @click="changeRightsShow(scope.row)"
+          ></el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </el-card>
 </template>
 
@@ -41,29 +74,43 @@ export default {
     deleRights(rightID) {
       console.log(rightID, this.activeName);
 
-      this.$http.delete(`roles/${this.activeName}/rights/${rightID}`)
-      .then(res=>{
+      this.$http
+        .delete(`roles/${this.activeName}/rights/${rightID}`)
+        .then(res => {
           console.log(res);
           const {
-              data:{
-                  meta:{
-                      msg,status
-                  }
-              }
-          }=res;
+            data: {
+              meta: { msg, status }
+            }
+          } = res;
           if (status === 200) {
-              this.$message.success(msg);
-              this.getRoles();
+            this.$message.success(msg);
+            this.getRoles();
           }
-      })
+        });
     },
     getRoles() {
       this.$http.get("roles").then(res => {
         const {
           data: { data }
         } = res;
+        console.log(res);
+        console.log(data);
         this.roleList = data;
       });
+      // console.log(data)
+    },
+    editRoleShow() {},
+    delRoleShow() {},
+    changeRightsShow(role) {
+      console.log(role);
+    },
+    deleRights(rightID,roleID){
+      console.log(rightID,roleID);
+      this.$http.delete(`roles/${roleID}/rights/${rightID}`)
+      .then(res=>{
+        console.log(res);
+      })
     }
   }
 };
@@ -81,5 +128,11 @@ export default {
 }
 .fl {
   float: left;
+}
+.lev1 {
+  /* margin-top: 10px; */
+}
+.lev2 {
+  /* margin-top: 10px; */
 }
 </style>

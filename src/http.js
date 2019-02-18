@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const httpServer = {};
+const httpServer = {
+    
+};
 
 httpServer.install = function (Vue) {
 
@@ -16,8 +18,6 @@ httpServer.install = function (Vue) {
     }, function (error) {
         return Promise.reject(error)
     })
-
-
     
     Vue.prototype.$http = axios;
 }
