@@ -140,7 +140,7 @@ export default {
     };
   },
   methods: {
-    dataChange(){
+    dataChange() {
       console.log(this.arrDri);
     },
     handleChange() {
@@ -149,10 +149,17 @@ export default {
     tabChange() {
       console.log(this.active);
       if (this.active == 2 || this.active == 3) {
-        if (this.selectedOptions.length == 0) {
+        if (this.selectedOptions.length !== 3) {
           this.$message.error("请先设置三级分类");
-        } else {
           if (this.active == 2) {
+            this.arrDri = [];
+          } else if (this.arrSta == 3) {
+            this.arrSta = [];
+          }
+          return;
+        }
+        if (this.active == 2) {
+          if (this.arrDri.length === 0) {
             this.$http
               .get(`categories/${this.selectedOptions[2]}/attributes?sel=many`)
               .then(res => {
@@ -168,22 +175,22 @@ export default {
                   item.attr_vals = item.attr_vals.split(",");
                 });
               });
-          } else if (this.active == 3) {
-            this.$http
-              .get(`categories/${this.selectedOptions[2]}/attributes?sel=only`)
-              .then(res => {
-                console.log(res);
-                const {
-                  data: {
-                    data,
-                    meta: { msg, status }
-                  }
-                } = res;
-                if (status === 200) {
-                  this.arrSta = data;
-                }
-              });
           }
+        } else if (this.active == 3) {
+          this.$http
+            .get(`categories/${this.selectedOptions[2]}/attributes?sel=only`)
+            .then(res => {
+              console.log(res);
+              const {
+                data: {
+                  data,
+                  meta: { msg, status }
+                }
+              } = res;
+              if (status === 200) {
+                this.arrSta = data;
+              }
+            });
         }
       }
     },
@@ -217,7 +224,6 @@ export default {
       });
 
       console.log(this.addForm.attrs);
-      
 
       this.$http.post("goods", this.addForm).then(res => {
         const {
@@ -229,7 +235,7 @@ export default {
         console.log(res);
         if (status === 201) {
           this.$message.success(msg);
-          this.$router.push('goods')
+          this.$router.push("goods");
         }
       });
     }
