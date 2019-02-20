@@ -41,6 +41,7 @@ const router = new Router({
           component: Rolechange
         },
         {
+          name:'goods',
           path: '/goods',
           component: Goodslist
         },

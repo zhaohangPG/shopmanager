@@ -122,8 +122,8 @@ export default {
         goods_number: "",
         goods_weight: "",
         goods_introduce: "",
-        pics: "",
-        attrs: ""
+        pics: [],
+        attrs: []
       },
       selectedOptions: [],
       goods_cat: [],
@@ -186,21 +186,36 @@ export default {
     },
     handleRemove(file) {},
     handleSuccess(response) {
-      console.log("发送成功");
-      console.log(response);
       const {
         data: { tmp_path },
         meta: { msg, status }
       } = response;
-      this.addForm.pics = tmp_path;
-      console.log(this.addForm.pics);
+      this.addForm.pics.push = {
+        pic: tmp_path
+      };
     },
     goodsSubmit() {
       console.log("添加提交");
       let tmp = this.selectedOptions;
       this.addForm.goods_cat = tmp.join(",");
-      console.log(this.addForm.goods_cat);
-      console.log(this.addForm);
+
+      this.arrDri.forEach(item => {
+        let tmp = item.attr_vals.join(",");
+        this.addForm.attrs.push({
+          attr_id: item.attr_id,
+          attr_value: tmp
+        });
+      });
+      this.arrSta.forEach(item => {
+        this.addForm.attrs.push({
+          attr_id: item.attr_id,
+          attr_value: item.attr_vals
+        });
+      });
+
+      console.log(this.addForm.attrs);
+      
+
       this.$http.post("goods", this.addForm).then(res => {
         const {
           data: {
@@ -208,7 +223,8 @@ export default {
             meta: { msg, status }
           }
         } = res;
-        if (status === 200) {
+        console.log(res);
+        if (status === 201) {
           this.$message.success(msg);
         }
       });
