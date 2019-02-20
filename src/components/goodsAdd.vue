@@ -35,7 +35,7 @@
         </el-tab-pane>
         <el-tab-pane label="商品参数" name="2">
           <el-form-item :label="item.attr_name" v-for="item in arrDri" :key="item.attr_id">
-            <el-checkbox-group v-model="item.attr_vals">
+            <el-checkbox-group v-model="item.attr_vals" @change="dataChange">
               <el-checkbox
                 class="checkbox"
                 v-for="item2 in item.attr_vals"
@@ -140,6 +140,9 @@ export default {
     };
   },
   methods: {
+    dataChange(){
+      console.log(this.arrDri);
+    },
     handleChange() {
       console.log(this.selectedOptions);
     },
@@ -226,6 +229,7 @@ export default {
         console.log(res);
         if (status === 201) {
           this.$message.success(msg);
+          this.$router.push('goods')
         }
       });
     }
