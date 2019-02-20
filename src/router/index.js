@@ -6,6 +6,9 @@ import Home from '../components/home.vue'
 import Users from '../components/users.vue'
 import Rights from '../components/rights.vue'
 import Rolechange from '../components/rolechange.vue'
+import GoodsAdd from '../components/goodsAdd.vue'
+import Goodslist from '../components/goodslist.vue'
+
 import {
   Message
 } from 'element-ui';
@@ -36,6 +39,15 @@ const router = new Router({
         {
           path: '/roles',
           component: Rolechange
+        },
+        {
+          path: '/goods',
+          component: Goodslist
+        },
+        {
+          name:'goodsadd',
+          path: '/goodsAdd',
+          component: GoodsAdd
         }
       ]
     }
@@ -44,8 +56,8 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   // ...
-  console.log(to)
-  console.log(from)
+  // console.log(to)
+  // console.log(from)
   if (to.name === 'login') {
     next();
   } else {
