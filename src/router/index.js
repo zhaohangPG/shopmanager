@@ -8,6 +8,9 @@ import Rights from '../components/rights.vue'
 import Rolechange from '../components/rolechange.vue'
 import GoodsAdd from '../components/goodsAdd.vue'
 import Goodslist from '../components/goodslist.vue'
+import Goodscate from '../components/goodscate.vue'
+import Goodsparams from '../components/goodsparams.vue'
+import Order from '../components/order.vue'
 
 import {
   Message
@@ -41,14 +44,29 @@ const router = new Router({
           component: Rolechange
         },
         {
-          name:'goods',
+          name: 'goods',
           path: '/goods',
           component: Goodslist
         },
         {
-          name:'goodsadd',
+          name: 'goodsadd',
           path: '/goodsAdd',
           component: GoodsAdd
+        }, 
+        {
+          name: 'params',
+          path: '/params',
+          component: Goodsparams
+        },
+        {
+          name: 'categories',
+          path: '/categories',
+          component: Goodscate
+        },
+        {
+          name: 'orders',
+          path: '/orders',
+          component: Order
         }
       ]
     }
