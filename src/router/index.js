@@ -11,6 +11,7 @@ import Goodslist from '../components/goodslist.vue'
 import Goodscate from '../components/goodscate.vue'
 import Goodsparams from '../components/goodsparams.vue'
 import Order from '../components/order.vue'
+import Reports from '../components/reports.vue'
 
 import {
   Message
@@ -67,6 +68,11 @@ const router = new Router({
           name: 'orders',
           path: '/orders',
           component: Order
+        },
+        {
+          name: 'reports',
+          path: '/reports',
+          component: Reports
         }
       ]
     }
